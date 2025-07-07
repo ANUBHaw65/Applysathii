@@ -1,0 +1,127 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApplySathi Multilingual Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; }
+    .chatbot-toggle {
+      position: fixed; bottom: 20px; right: 20px;
+      background-color: #28a745; color: #fff;
+      border: none; border-radius: 50%;
+      width: 60px; height: 60px; font-size: 30px;
+      cursor: pointer; z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .chatbot-box {
+      position: fixed; bottom: 90px; right: 20px;
+      width: 340px; max-height: 500px;
+      background-color: #fff; border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      display: none; flex-direction: column;
+      overflow: hidden; z-index: 1000;
+    }
+    .chatbot-header {
+      background-color: #28a745; color: #fff;
+      padding: 12px; font-weight: bold;
+    }
+    .chatbot-messages {
+      flex: 1; padding: 10px; overflow-y: auto;
+    }
+    .chatbot-input {
+      display: flex; border-top: 1px solid #ccc;
+    }
+    .chatbot-input input {
+      flex: 1; padding: 10px;
+      border: none; outline: none;
+    }
+    .chatbot-input button {
+      padding: 10px;
+      background-color: #28a745; color: #fff;
+      border: none; cursor: pointer;
+    }
+    .user-msg { text-align: right; margin: 5px 0; }
+    .bot-msg { text-align: left; margin: 5px 0; }
+  </style>
+</head>
+<body>
+<button class="chatbot-toggle" onclick="toggleChat()">💬</button>
+<div class="chatbot-box" id="chatBox">
+  <div class="chatbot-header">ApplySathi Bot 🤖</div>
+  <div class="chatbot-messages" id="chatMessages"></div>
+  <div class="chatbot-input">
+    <input type="text" id="chatInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)" />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+<script>
+  let language = 'hinglish';
+  const botResponses = {
+    english: {
+      hi: "Hello! I'm ApplySathi Bot. How can I help you?",
+      fallback: "Sorry, I didn't understand that. Can you please rephrase?"
+    },
+    hinglish: {
+      hi: "Hello! Main ApplySathi Bot hoon. Aapko kis cheez ki madad chahiye?",
+      fallback: "Maaf kijiye, samajh nahi aaya. Thoda clearly poochhiye."
+    },
+    hindi: {
+      hi: "नमस्ते! मैं ApplySathi Bot हूँ। आपकी कैसे मदद कर सकता हूँ?",
+      fallback: "माफ़ कीजिए, मैं समझ नहीं पाया। कृपया दोबारा पूछें।"
+    },
+    marathi: {
+      hi: "नमस्कार! मी ApplySathi Bot आहे. मी तुम्हाला कशात मदत करू शकतो?",
+      fallback: "क्षमस्व, मला समजले नाही. कृपया पुन्हा विचारा."
+    },
+    tamil: {
+      hi: "வணக்கம்! நான் ApplySathi Bot. எப்படி உதவலாம்?",
+      fallback: "மன்னிக்கவும், புரியவில்லை. தயவு செய்து மீண்டும் சொல்லுங்கள்."
+    },
+    telugu: {
+      hi: "నమస్తే! నేను ApplySathi Bot. మీకు ఎలా సహాయం చేయగలను?",
+      fallback: "క్షమించండి, నేను అర్థం చేసుకోలేకపోయాను. దయచేసి మళ్లీ అడగండి."
+    },
+    kannada: {
+      hi: "ನಮಸ್ಕಾರ! ನಾನು ApplySathi Bot. ನಾನು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?",
+      fallback: "ಕ್ಷಮಿಸಿ, ನನಗೆ ಅರ್ಥವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಕೇಳಿ."
+    },
+    assamese: {
+      hi: "নমস্কাৰ! মই ApplySathi Bot। আপোনাক কেনেকৈ সহায় কৰিব পাৰোঁ?",
+      fallback: "দুঃখিত, মই বুজি নাপালোঁ। অনুগ্ৰহ কৰি পুনৰ চেষ্টা কৰক।"
+    },
+    bhojpuri: {
+      hi: "नमस्कार! हम ApplySathi Bot बानी। रउआ के कइसन मदद करीं?",
+      fallback: "माफ करीं, हम समझ ना पवनी। फेरु पूछीं।"
+    },
+    bengali: {
+      hi: "নমস্কার! আমি ApplySathi Bot। আমি কীভাবে সাহায্য করতে পারি?",
+      fallback: "দুঃখিত, আমি বুঝতে পারিনি। অনুগ্রহ করে আবার বলুন।"
+    },
+    gujarati: {
+      hi: "નમસ્તે! હું ApplySathi Bot છું. હું તમને કેવી રીતે મદદ કરી શકું?",
+      fallback: "માફ કરો, હું સમજી શક્યો નહીં. કૃપા કરીને ફરીથી પૂછો."
+    },
+    odia: {
+      hi: "ନମସ୍କାର! ମୁଁ ApplySathi Bot. ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିପାରିବି?",
+      fallback: "ମାଫ କରନ୍ତୁ, ମୁଁ ବୁଝିପାରିଲିନି। ଦୟାକରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"
+    }
+  };function toggleChat() { const box = document.getElementById('chatBox'); box.style.display = box.style.display === 'flex' ? 'none' : 'flex'; box.style.flexDirection = 'column'; }
+
+function handleKeyPress(event) { if (event.key === 'Enter') sendMessage(); }
+
+function sendMessage() { const input = document.getElementById('chatInput'); const message = input.value.trim(); if (!message) return; appendMessage('user-msg', message); input.value = ''; respond(message.toLowerCase()); }
+
+function appendMessage(type, text) { const chat = document.getElementById('chatMessages'); const msg = document.createElement('div'); msg.className = type; msg.textContent = text; chat.appendChild(msg); chat.scrollTop = chat.scrollHeight; }
+
+function respond(input) { if (input.includes('english')) language = 'english'; else if (input.includes('hinglish')) language = 'hinglish'; else if (input.includes('hindi')) language = 'hindi'; else if (input.includes('marathi')) language = 'marathi'; else if (input.includes('tamil')) language = 'tamil'; else if (input.includes('telugu')) language = 'telugu'; else if (input.includes('kannada')) language = 'kannada'; else if (input.includes('assamese')) language = 'assamese'; else if (input.includes('bhojpuri')) language = 'bhojpuri'; else if (input.includes('bengali')) language = 'bengali'; else if (input.includes('gujarati')) language = 'gujarati'; else if (input.includes('odia')) language = 'odia';
+
+const lang = botResponses[language] || botResponses['hinglish'];
+let reply = lang.fallback;
+
+if (input.includes('hi') || input.includes('hello') || input.includes('namaste')) reply = lang.hi;
+appendMessage('bot-msg', reply);
+
+} </script>
+
+</body>
+</html>
